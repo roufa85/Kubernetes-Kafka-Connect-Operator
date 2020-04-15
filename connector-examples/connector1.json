@@ -1,6 +1,6 @@
 {
     "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
-    "tasks.max": "1",
+    "tasks.max": "2",
     "topics": "test-topic",
     "key.ignore": "true",
     "connection.url": "http://elastic-server:9200",
