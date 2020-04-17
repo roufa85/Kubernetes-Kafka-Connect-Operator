@@ -3,7 +3,7 @@
     "tasks.max": "2",
     "topics": "test-topic",
     "key.ignore": "true",
-    "connection.url": "https://ssp-es-http:9200",
+    "connection.url": "http://elastic-svc:9200",
     "type.name": "index",
     "name": "elasticsearch-sink",
     "schema.ignore": "true",
