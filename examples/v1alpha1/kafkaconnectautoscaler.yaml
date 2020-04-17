@@ -5,7 +5,7 @@ metadata:
 spec:
   kcScaleTargetRef:
     apiVersion: kafkaconnect.operator.io/v1alpha1
-    name: kafkaconnectcloud
+    name: experiment-ssp
     kafkaConnectorName: connector-elastic
   minTasks: 1
   maxTasks: 4
@@ -14,7 +14,7 @@ spec:
     object:
       describedObject: 
         kind: KafkaConnect
-        name: kafkaconnectcloud
+        name: experiment-ssp
         apiVersion: kafkaconnect.operator.io/v1alpha1
       metric:
         name: connector-elastic-lag

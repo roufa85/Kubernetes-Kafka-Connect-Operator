@@ -1,3 +1,5 @@
+creds.env
+*history.txt
 # Temporary Build Files
 build/_output
 build/_test

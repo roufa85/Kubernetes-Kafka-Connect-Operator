@@ -45,7 +45,7 @@ metadata:
 spec:
   service:
     name: kubernetes-kafka-connect-operator-svc
-    namespace: default
+    namespace: ssp-operator
   group: custom.metrics.k8s.io
   version: v1beta2
   insecureSkipTLSVerify: true

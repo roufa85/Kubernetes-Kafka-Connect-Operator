@@ -1,24 +1,24 @@
 apiVersion: kafkaconnect.operator.io/v1alpha1
 kind: KafkaConnect
 metadata:
-  name: kafkaconnectcloud
+  name: experiment-ssp
   labels:
     app: kafkaconnect
     type: elasticsearch-sink
 spec:
   scaleStabilizationSec: 60
   kafkaConnectRestAPIPort: 8083
-  ingressSpec:
-    parentDomain: apps-crc.testing
-    style: domainStyle
+  # ingressSpec:
+  #   parentDomain: apps-crc.testing
+  #   style: domainStyle
   connectors:
-    kafkaBrokers: "localhost:9092"
+    kafkaBrokers: "ephemeral-kafka-bootstrap:9092"
     taskPerPod: 1
     initPodReplicas: 1
     connectorConfigs:
       - name: connector-elastic
         exposeLagMetric: true
-        url: https://raw.githubusercontent.com/amadeusitgroup/kubernetes-kafka-connect-operator/master/connector-examples/connector1.json
+        url: https://raw.githubusercontent.com/roufa85/Kubernetes-Kafka-Connect-Operator/master/connector-examples/connector1.json
   podSpec:
     containers:
       - name: kafkaconnect
@@ -28,7 +28,7 @@ spec:
           - containerPort: 8083
         env:
           - name: CONNECT_BOOTSTRAP_SERVERS
-            value: "localhost:9092"
+            value: "ephemeral-kafka-bootstrap:9092"
           - name: CONNECT_GROUP_ID
             value: connector-elastic
           - name: CONNECT_CONFIG_STORAGE_TOPIC
@@ -48,9 +48,9 @@ spec:
           - name: CONNECT_PLUGIN_PATH
             value: /usr/share/java,/usr/share/confluent-hub-components
           - name: CONNECT_LOG4J_ROOT_LOGLEVEL
-            value: INFO
+            value: ERROR
           - name: CONNECT_LOG4J_LOGGERS
-            value: org.reflections=INFO
+            value: org.reflections=ERROR
           - name: CONNECT_REST_ADVERTISED_HOST_NAME
             valueFrom:
               fieldRef:
@@ -61,15 +61,15 @@ spec:
           httpGet:
             path: /connectors
             port: 8083
-          initialDelaySeconds: 120
+          initialDelaySeconds: 180
           periodSeconds: 5
           timeoutSeconds: 1
         livenessProbe:
           httpGet:
             path: /connectors
             port: 8083
-          initialDelaySeconds: 120
-          periodSeconds: 20
+          initialDelaySeconds: 180
+          periodSeconds: 5
           timeoutSeconds: 1
         resources:
           limits:

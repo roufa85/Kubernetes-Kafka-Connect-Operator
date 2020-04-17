@@ -1,0 +1,19 @@
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaConnect
+metadata:
+  name: ephemeral
+spec:
+  version: 2.3.0
+  replicas: 1
+  bootstrapServers: ephemeral-kafka-bootstrap:9093
+  tls: 
+    trustedCertificates:
+     - secretName: ephemeral-cluster-ca-cert
+       certificate: ca.crt
+  livenessProbe:
+    initialDelaySeconds: 15
+    timeoutSeconds: 5
+  readinessProbe:
+    initialDelaySeconds: 15
+    timeoutSeconds: 5
+  
