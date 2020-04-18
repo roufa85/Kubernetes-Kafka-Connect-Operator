@@ -1,10 +1,25 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: elastic-svc
+  labels:
+    app: elasticsearch
+spec:
+  selector:
+    app: elasticsearch
+  ports:
+  - port: 9200
+    name: rest
+  - port: 9300
+    name: inter-node
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: es-cluster
 spec:
-  serviceName: elasticsearch
-  replicas: 3
+  serviceName: elastic-svc
+  replicas: 1
   selector:
     matchLabels:
       app: elasticsearch
@@ -13,6 +28,7 @@ spec:
       labels:
         app: elasticsearch
     spec:
+      serviceAccount: elasticsearch
       containers:
       - name: elasticsearch
         image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
@@ -38,12 +54,16 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
+          # - name: discovery.seed_hosts
+          #   value: "es-cluster-0.elastic-svc,es-cluster-1.elastic-svc,es-cluster-2.elastic-svc"
+          # - name: cluster.initial_master_nodes
+          #   value: "es-cluster-0,es-cluster-1,es-cluster-2"
           - name: discovery.seed_hosts
-            value: "es-cluster-0.elasticsearch,es-cluster-1.elasticsearch,es-cluster-2.elasticsearch"
+            value: "es-cluster-0.elastic-svc"
           - name: cluster.initial_master_nodes
-            value: "es-cluster-0,es-cluster-1,es-cluster-2"
+            value: "es-cluster-0"
           - name: ES_JAVA_OPTS
-            value: "-Xms512m -Xmx512m"
+            value: "-Xms500m -Xmx500m"
       initContainers:
       - name: fix-permissions
         image: busybox
@@ -63,14 +83,48 @@ spec:
         command: ["sh", "-c", "ulimit -n 65536"]
         securityContext:
           privileged: true
-  volumeClaimTemplates:
-  - metadata:
-      name: data
+      volumes:
+      - name: data
+        emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
       labels:
-        app: elasticsearch
+        app: kibana
     spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: standard
-      resources:
-        requests:
-          storage: 5Gi
+      containers:
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana:7.2.0
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        env:
+          - name: ELASTICSEARCH_HOSTS
+            value: http://elastic-svc:9200
+        ports:
+        - containerPort: 5601
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  labels:
+    app: kibana
+spec:
+  ports:
+  - port: 5601
+  selector:
+    app: kibana
